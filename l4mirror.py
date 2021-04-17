@@ -65,7 +65,7 @@ class L4Mirror14(app_manager.RyuApp):
                     self.ht[match] = 1
                     acts = [psr.OFPActionOutput(1)]
                     acts.append(psr.OFPActionOutput(3))
-                elif match in self.ht:
+                elif match in self.ht and self.ht[match] < 10:
                     acts = [psr.OFPActionOutput(1)]
                     self.ht[match] = self.ht[match] + 1
                     acts.append(psr.OFPActionOutput(3))
@@ -75,8 +75,8 @@ class L4Mirror14(app_manager.RyuApp):
                     self.ht.pop(match, None)
                     mtc = psr.OFPMatch(in_port = 2,eth_type=eth.ethertype,ipv4_src=ip_src,ipv4_dst = ip_dst,ip_proto = iph[0].proto,tcp_src=sport,tcp_dst=dport)
                     self.add_flow(dp, 1, mtc, acts, msg.buffer_id)
-                if msg.buffer_id != ofp.OFP_NO_BUFFER:
-                    return
+                    if msg.buffer_id != ofp.OFP_NO_BUFFER:
+                     return
         #
         data = msg.data if msg.buffer_id == ofp.OFP_NO_BUFFER else None
         out = psr.OFPPacketOut(datapath=dp, buffer_id=msg.buffer_id,
