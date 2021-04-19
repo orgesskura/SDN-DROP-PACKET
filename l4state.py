@@ -45,11 +45,7 @@ class L4State14(app_manager.RyuApp):
         iph = pkt.get_protocols(ipv4.ipv4)
         dst, src = (eth.dst, eth.src)
         cond = len(tcph) == 0 or  len(iph)  == 0
-        # way to drop a packet
-       # acts = [psr.OFPActionOutput(ofp.OFPPC_NO_FWD)]
         if cond:
-            #do something
-            print('I got you')
             if in_port == 1:
                 acts = [psr.OFPActionOutput(2)]
             else :
@@ -62,20 +58,18 @@ class L4State14(app_manager.RyuApp):
             dport = tcph[0].dst_port
             match = (ip_src,ip_dst,sport,dport)
             if in_port == 1:
-                #do somethinkg
                 if match not in self.ht:
                     self.ht.add(match)
                 acts = [psr.OFPActionOutput(2)]
-                mtc = psr.OFPMatch(in_port=in_port,ip_proto = iph[0].proto,ipv4_src=ip_src,ipv4_dst = ip_dst,tcp_src=sport,tcp_dst=dport)
+                mtc = psr.OFPMatch(in_port=in_port,eth_type=eth.ethertype,ipv4_src=ip_src,ipv4_dst = ip_dst,ip_proto = iph[0].proto,tcp_src=sport,tcp_dst=dport)
                 self.add_flow(dp, 1, mtc, acts, msg.buffer_id)
                 if msg.buffer_id != ofp.OFP_NO_BUFFER:
                     return
             else :
-                #do something
                 match2 = (ip_dst,ip_src,dport,sport)
                 if match2 in self.ht:
                     acts = [psr.OFPActionOutput(1)]
-                    mtc = psr.OFPMatch(in_port=2,ip_proto = iph[0].proto,ipv4_src=ip_src,ipv4_dst = ip_dst,tcp_src=sport,tcp_dst=dport)
+                    mtc = psr.OFPMatch(in_port=in_port,eth_type=eth.ethertype,ipv4_src=ip_src,ipv4_dst = ip_dst,ip_proto = iph[0].proto,tcp_src=sport,tcp_dst=dport)
                     self.add_flow(dp, 1, mtc, acts, msg.buffer_id)
                     if msg.buffer_id != ofp.OFP_NO_BUFFER:
                         return
